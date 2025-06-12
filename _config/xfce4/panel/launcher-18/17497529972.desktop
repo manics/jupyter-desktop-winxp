@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Exec=explorer
+Icon=explorer
+StartupNotify=true
+Terminal=false
+Categories=Utility;GTK;
+X-XFCE-MimeType=inode/directory;x-scheme-handler/trash;
+Name=Windows Explorer
+Comment=Browse the file system
+X-XFCE-Source=file:///usr/share/applications/explorer.desktop

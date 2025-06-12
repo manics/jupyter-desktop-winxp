@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Exec=explorer --ie %F
+Icon=iexplore
+StartupNotify=true
+Terminal=false
+Categories=Network;WebBrowser;GTK;
+X-XFCE-MimeType=x-scheme-handler/http;x-scheme-handler/https;
+Name=Internet Explorer
+Comment=Browse the web
+X-XFCE-Source=file:///usr/share/applications/iexplore.desktop

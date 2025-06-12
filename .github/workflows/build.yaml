@@ -1,0 +1,154 @@
+# This is a GitHub workflow defining a set of jobs with a set of steps.
+# ref: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+#
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - "dependabot/**"
+    tags: ["**"]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE: ${{ github.repository }}
+  # Set to "" to publish container on tags only
+  # Set to "<branch-name>" to also publish on every push to <branch-name>
+  PUBLISH_BRANCH: "main"
+  PLATFORMS: linux/amd64
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # https://github.com/pre-commit/action
+      - uses: pre-commit/action@v3.0.1
+
+      # - name: Cache playwright binaries
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       ~/.cache/ms-playwright
+      #     key: ${{ runner.os }}-playwright
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          # Export to local Docker daemon so we can test it
+          load: true
+          tags: test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # - name: Install playwright
+      #   run: |
+      #     python -mpip install -r dev-requirements.txt
+      #     python -mplaywright install --with-deps
+
+      # - name: Playwright browser test
+      #   run: |
+      #     container_id=$(docker run -d -it -p 8888:8888 -e JUPYTER_TOKEN=secret test)
+      #     sleep 3
+      #     export CONTAINER_ID=$container_id
+      #     export JUPYTER_HOST=http://localhost:8888
+      #     export JUPYTER_TOKEN=secret
+
+      #     python -mpytest -vs
+
+      #     echo "::group::jupyter_server logs"
+      #     docker logs $container_id
+      #     echo "::endgroup::"
+
+      #     echo "::group::vncserver logs"
+      #     docker exec $container_id bash -c 'cat ~/.vnc/*.log'
+      #     echo "::endgroup::"
+
+      #     timeout 5 docker stop $container_id > /dev/null && echo "Passed SIGTERM test" || { echo "Failed SIGTERM test" && TEST_OK=false; }
+
+      #     if [ "$TEST_OK" == "false" ]; then
+      #         echo "One or more tests failed!"
+      #         exit 1
+      #     fi
+
+      # - name: Upload screenshot
+      #   uses: actions/upload-artifact@v4
+      #   if: always()
+      #   with:
+      #     name: screenshots
+      #     path: screenshots/*
+      #     if-no-files-found: error
+
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    needs:
+      - test
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Decide whether to push image to registry
+        id: publish
+        run: |
+          PUSH=false
+          if [ "${{ startsWith(github.ref, 'refs/tags/') || (github.ref == format('refs/heads/{0}', env.PUBLISH_BRANCH)) }}" = "true" ]; then
+            if [ "${{ github.event_name }}" = "push" ]; then
+              PUSH=true
+            fi
+          fi
+          echo "push=$PUSH" >> $GITHUB_OUTPUT
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          flavor: latest=false
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE }}
+          tags: |
+            # set latest tag for PUBLISH_BRANCH
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', env.PUBLISH_BRANCH) }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to container registry
+        uses: docker/login-action@v3
+        if: steps.publish.outputs.push == 'true'
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push to container registry
+        uses: docker/build-push-action@v6
+        with:
+          platforms: ${{ env.PLATFORMS }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          push: ${{ steps.publish.outputs.push }}
+          # Don't use cache if this image will be published
+          cache-from: ${{ steps.publish.outputs.push == 'false' && 'type=gha' || '' }}
+          cache-to: ${{ steps.publish.outputs.push == 'false' && 'type=gha,mode=max' || '' }}
