@@ -18,5 +18,4 @@ Open the `http://127.0.0.1:8888/lab?token=<TOKEN>` URL shown in the output.
 
 https://github.com/rozniak/xfce-winxp-tc/wiki/Manual-configuration-following-install/9ce456aacdf6d227fd42f71914a0a5776920e5ad#shell-setup
 
-- `wintc-desktop` is hidden by `xfdesktop`, Run `xfdesktop --quit` in a terminal
 - `wintc-taskband` which provides the main WinXP menu bar and start menu segfaults
