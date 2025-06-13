@@ -1,0 +1,33 @@
+diff --git a/packaging/deb/pkgimpl.sh b/packaging/deb/pkgimpl.sh
+index ab348c5..de59cbd 100755
+--- a/packaging/deb/pkgimpl.sh
++++ b/packaging/deb/pkgimpl.sh
+@@ -35,7 +35,7 @@ do_packaging()
+ 
+     # Build package now
+     #
+-    fakeroot dpkg-deb -v --build "${pkg_dir}"
++    fakeroot dpkg-deb --nocheck -v --build "${pkg_dir}"
+ 
+     if [[ $? -gt 0 ]]
+     then
+diff --git a/shell/taskband/src/systray/notifarea.c b/shell/taskband/src/systray/notifarea.c
+index fbae9af..b3b184e 100644
+--- a/shell/taskband/src/systray/notifarea.c
++++ b/shell/taskband/src/systray/notifarea.c
+@@ -128,10 +128,11 @@ static void wintc_notification_area_init(
+         WINTC_TYPE_NOTIFICATION_NETWORK
+     );
+ #endif
+-    wintc_notification_area_append_component(
+-        self,
+-        WINTC_TYPE_NOTIFICATION_POWER
+-    );
++    // Segfaults inside a container
++    // wintc_notification_area_append_component(
++    //     self,
++    //     WINTC_TYPE_NOTIFICATION_POWER
++    // );
+     wintc_notification_area_append_component(
+         self,
+         WINTC_TYPE_NOTIFICATION_VOLUME

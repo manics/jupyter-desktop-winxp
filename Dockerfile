@@ -8,7 +8,7 @@ FROM quay.io/jupyter/base-notebook:2025-06-02
 
 # https://github.com/rozniak/xfce-winxp-tc/wiki/Manual-configuration-following-install/9ce456aacdf6d227fd42f71914a0a5776920e5ad
 
-ARG RECOMMENDS=
+# ARG RECOMMENDS=
 ARG RECOMMENDS=--no-install-recommends
 
 USER root
@@ -36,6 +36,7 @@ RUN apt-get update -y -q && \
         gcc \
         git \
         make \
+        patch \
         pkg-config \
         python3
 
@@ -59,9 +60,12 @@ RUN apt-get install -y -q $RECOMMENDS \
     $(/home/jovyan/xfce-winxp-tc/packaging/chkdeps.sh -l | cut -d':' -f2 | tr '\n' ' ')
 
 USER $NB_USER
-RUN cd xfce-winxp-tc/packaging && \
-    # dpkb-deb complains about some Docker directory permissions
-    sed -i.bak 's/dpkg-deb /dpkg-deb --nocheck /' deb/pkgimpl.sh && \
+# COPY to a relative destination without WORKDIR set
+# hadolint ignore=DL3045
+COPY --chown=$NB_UID:$NB_GID container-workarounds.patch .
+RUN cd xfce-winxp-tc && \
+    patch -p1 < ../container-workarounds.patch && \
+    cd packaging && \
     ./buildall.sh -t deb
 
 USER root

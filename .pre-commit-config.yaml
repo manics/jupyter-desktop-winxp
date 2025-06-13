@@ -22,6 +22,7 @@ repos:
       - id: check-added-large-files
       - id: end-of-file-fixer
       - id: trailing-whitespace
+        exclude: ".+\\.patch$"
 
   # Lint: Dockerfile
   - repo: https://github.com/hadolint/hadolint.git
