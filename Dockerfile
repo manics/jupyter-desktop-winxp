@@ -29,7 +29,7 @@ RUN apt-get update -y -q && \
         tigervnc-tools \
         xfce4 \
         xfce4-terminal \
-        # For building xfce-winxp-tc
+        # For building and configuring xfce-winxp-tc
         cmake \
         coreutils \
         fakeroot \
@@ -38,7 +38,8 @@ RUN apt-get update -y -q && \
         make \
         patch \
         pkg-config \
-        python3
+        python3 \
+        sqlite3
 
 USER $NB_USER
 COPY --chown=$NB_UID:$NB_GID requirements.txt /tmp
@@ -76,3 +77,5 @@ RUN apt-get install -y -q $RECOMMENDS \
 USER $NB_USER
 
 COPY --chown=$NB_UID:$NB_GID _config /home/jovyan/.config
+RUN cd .config/wintc/registry && \
+    sqlite3 ntuser.db < registry.sql

@@ -1,0 +1,10 @@
+PRAGMA foreign_keys=OFF;
+BEGIN TRANSACTION;
+CREATE TABLE RegKey (    Id       INTEGER PRIMARY KEY,    ParentId INTEGER,    Name     VARCHAR(255) NOT NULL,    FOREIGN KEY(ParentId) REFERENCES RegKey(Id),    UNIQUE(ParentId, Name));
+INSERT INTO RegKey VALUES(1,NULL,'HKEY_CURRENT_USER');
+INSERT INTO RegKey VALUES(2,1,'Control Panel');
+INSERT INTO RegKey VALUES(3,2,'Desktop');
+CREATE TABLE RegKeyValue (    Id        INTEGER PRIMARY KEY,    OwnerKey  INTEGER,    Name      VARCHAR(255),    ItemType  INTEGER,    ItemValue BLOB,    FOREIGN KEY(OwnerKey) REFERENCES RegKey(Id),    UNIQUE(OwnerKey, Name));
+INSERT INTO RegKeyValue VALUES(1,3,'Wallpaper',3,'/usr/share/backgrounds/wintc/winxp.jpg');
+INSERT INTO RegKeyValue VALUES(2,3,'WallpaperStyle',1,2);
+COMMIT;
