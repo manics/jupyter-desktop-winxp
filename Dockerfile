@@ -25,8 +25,10 @@ RUN apt-get update -y -q && \
         tmux \
         vim \
         # Desktop
+        desktop-base \
         fonts-liberation2 \
         tigervnc-tools \
+        xdg-user-dirs \
         xfce4 \
         xfce4-terminal \
         # For building and configuring xfce-winxp-tc
