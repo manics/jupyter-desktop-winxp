@@ -11,23 +11,82 @@ index ab348c5..de59cbd 100755
  
      if [[ $? -gt 0 ]]
      then
-diff --git a/shell/taskband/src/systray/notifarea.c b/shell/taskband/src/systray/notifarea.c
-index fbae9af..b3b184e 100644
---- a/shell/taskband/src/systray/notifarea.c
-+++ b/shell/taskband/src/systray/notifarea.c
-@@ -128,10 +128,11 @@ static void wintc_notification_area_init(
-         WINTC_TYPE_NOTIFICATION_NETWORK
-     );
- #endif
--    wintc_notification_area_append_component(
--        self,
--        WINTC_TYPE_NOTIFICATION_POWER
+diff --git a/shell/taskband/src/systray/power.c b/shell/taskband/src/systray/power.c
+index 90af536..189906c 100644
+--- a/shell/taskband/src/systray/power.c
++++ b/shell/taskband/src/systray/power.c
+@@ -111,39 +111,46 @@ static void wintc_notification_power_constructed(
+     UpDevice*  device;
+ 
+     power->up_client = up_client_new();
+-    WINTC_LOG_DEBUG("Connected to upower");
+-
+-    all_devices = up_client_get_devices2(power->up_client);
+-
+-    for (guint i = 0; i < all_devices->len; i++)
++    if (power->up_client)
+     {
+-        device = all_devices->pdata[i];
++        WINTC_LOG_DEBUG("Connected to upower");
+ 
+-        check_and_register_battery(power, device);
+-    }
++        all_devices = up_client_get_devices2(power->up_client);
+ 
+-    g_signal_connect(
+-        power->up_client,
+-        "device-added",
+-        G_CALLBACK(on_up_client_device_added),
+-        power
 -    );
-+    // Segfaults inside a container
-+    // wintc_notification_area_append_component(
-+    //     self,
-+    //     WINTC_TYPE_NOTIFICATION_POWER
-+    // );
-     wintc_notification_area_append_component(
-         self,
-         WINTC_TYPE_NOTIFICATION_VOLUME
+-    g_signal_connect(
+-        power->up_client,
+-        "device-removed",
+-        G_CALLBACK(on_up_client_device_removed),
+-        power
+-    );
+-    g_signal_connect(
+-        power->up_client,
+-        "notify::on-battery",
+-        G_CALLBACK(on_up_client_battery_notify),
+-        power
+-    );
++        for (guint i = 0; i < all_devices->len; i++)
++        {
++            device = all_devices->pdata[i];
+ 
+-    update_client_on_battery(power, power->up_client);
++            check_and_register_battery(power, device);
++        }
+ 
+-    g_ptr_array_unref(all_devices);
++        g_signal_connect(
++            power->up_client,
++            "device-added",
++            G_CALLBACK(on_up_client_device_added),
++            power
++        );
++        g_signal_connect(
++            power->up_client,
++            "device-removed",
++            G_CALLBACK(on_up_client_device_removed),
++            power
++        );
++        g_signal_connect(
++            power->up_client,
++            "notify::on-battery",
++            G_CALLBACK(on_up_client_battery_notify),
++            power
++        );
++
++        update_client_on_battery(power, power->up_client);
++
++        g_ptr_array_unref(all_devices);
++    }
++    else
++    {
++        g_warning("Failed to connect to upower");
++    }
+ 
+     (G_OBJECT_CLASS(
+         wintc_notification_power_parent_class
