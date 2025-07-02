@@ -50,8 +50,8 @@ COPY --chown=$NB_UID:$NB_GID requirements.txt /tmp
 RUN . /opt/conda/bin/activate && \
     pip install --no-cache-dir -r /tmp/requirements.txt
 
-# https://github.com/rozniak/xfce-winxp-tc/tree/5aa075f95cd95c10d98e1751c7538ab77d8587cf
-ARG XFCE_WINXP_TC_VERSION=5aa075f95cd95c10d98e1751c7538ab77d8587cf
+# https://github.com/rozniak/xfce-winxp-tc/tree/93613cf6c81432d0f1c3bf3e2b088e955247edef
+ARG XFCE_WINXP_TC_VERSION=93613cf6c81432d0f1c3bf3e2b088e955247edef
 RUN git clone https://github.com/rozniak/xfce-winxp-tc/ && \
     cd xfce-winxp-tc && \
     git checkout $XFCE_WINXP_TC_VERSION
