@@ -16,3 +16,10 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    groups:
+      python-minor:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
