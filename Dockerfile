@@ -75,7 +75,7 @@ RUN cd xfce-winxp-tc && \
 
 USER root
 RUN apt-get install -y -q $RECOMMENDS \
-    /home/jovyan/xfce-winxp-tc/packaging/xptc/*/deb/std/x86_64/fre/*deb && \
+    /home/jovyan/xfce-winxp-tc/packaging/xptc/*/deb/std/*/fre/*deb && \
     fix-permissions "/home/${NB_USER}"
 
 COPY _config /etc/xfce-winxp-tc-config
