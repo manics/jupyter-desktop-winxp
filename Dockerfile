@@ -41,7 +41,9 @@ RUN apt-get update -y -q && \
         patch \
         pkg-config \
         python3 \
-        sqlite3
+        sqlite3 \
+        # For runtime setup
+        rsync
 
 USER $NB_USER
 COPY --chown=$NB_UID:$NB_GID requirements.txt /tmp
@@ -76,8 +78,10 @@ RUN apt-get install -y -q $RECOMMENDS \
     /home/jovyan/xfce-winxp-tc/packaging/xptc/*/deb/std/x86_64/fre/*deb && \
     fix-permissions "/home/${NB_USER}"
 
-USER $NB_USER
+COPY _config /etc/xfce-winxp-tc-config
+COPY copy-home-config.sh /usr/local/bin/before-notebook.d/
 
-COPY --chown=$NB_UID:$NB_GID _config /home/jovyan/.config
-RUN cd .config/wintc/registry && \
+RUN cd /etc/xfce-winxp-tc-config/wintc/registry && \
     sqlite3 ntuser.db < registry.sql
+
+USER $NB_USER
