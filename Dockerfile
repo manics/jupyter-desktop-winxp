@@ -81,6 +81,11 @@ RUN apt-get install -y -q $RECOMMENDS \
 COPY _config /etc/xfce-winxp-tc-config
 COPY copy-home-config.sh /usr/local/bin/before-notebook.d/
 
+# Run this script to start VNC without jupyter-server
+COPY start-tigervnc.sh /usr/local/bin/
+# This file is used by start-tigervnc.sh so check it exists:
+RUN ls /opt/conda/lib/python3.12/site-packages/jupyter_remote_desktop_proxy/share/xstartup
+
 RUN cd /etc/xfce-winxp-tc-config/wintc/registry && \
     sqlite3 ntuser.db < registry.sql
 
