@@ -43,7 +43,11 @@ RUN apt-get update -y -q && \
         python3 \
         sqlite3 \
         # For runtime setup
-        rsync
+        rsync \
+        # For RDP
+        expect \
+        xorgxrdp \
+        xrdp
 
 USER $NB_USER
 COPY --chown=$NB_UID:$NB_GID requirements.txt /tmp
@@ -83,8 +87,25 @@ COPY copy-home-config.sh /usr/local/bin/before-notebook.d/
 
 # Run this script to start VNC without jupyter-server
 COPY start-tigervnc.sh /usr/local/bin/
-# This file is used by start-tigervnc.sh so check it exists:
+
+# This file is used by start-tigervnc.sh and sesman.ini so check it exists:
 RUN ls /opt/conda/lib/python3.12/site-packages/jupyter_remote_desktop_proxy/share/xstartup
+
+# XRDP
+ARG JOVYAN_INITIAL_PASSWORD=jovyan123
+# HOME may be mounted and shared amongst multiple containers so container
+# specific initialisation must go somewhere else
+# Set the SHELL option -o pipefail
+# hadolint ignore=DL4006
+RUN rm /etc/xrdp/cert.pem /etc/xrdp/key.pem && \
+    chmod a+r /etc/xrdp/* && \
+    install -o jovyan -d /run/xrdp && \
+    install -o jovyan -d /etc/xrdp/jovyan && \
+    echo "jovyan:$JOVYAN_INITIAL_PASSWORD" | chpasswd && \
+    install -d /etc/vnc && \
+    install -o jovyan -d /etc/vnc/jovyan
+COPY start-xrdp.sh /usr/local/bin/
+COPY xrdp.ini sesman.ini passwd.expect /etc/xrdp/
 
 RUN cd /etc/xfce-winxp-tc-config/wintc/registry && \
     sqlite3 ntuser.db < registry.sql

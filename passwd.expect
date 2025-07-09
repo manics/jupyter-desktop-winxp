@@ -1,0 +1,23 @@
+#!/usr/bin/expect -f
+
+# Define passwords
+set old_password "jovyan123"
+set new_password $::env(NEW_PASSWORD)
+
+# Spawn the passwd command
+spawn passwd
+
+# Handle password prompts
+expect "*Current*password*"
+send "$old_password\n"
+
+expect "*New*password*"
+send "$new_password\n"
+
+expect "*Retype*new*password*"
+send "$new_password\n"
+
+# Wait for completion
+expect eof
+
+send_user "Updated password"
