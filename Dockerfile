@@ -89,7 +89,7 @@ COPY copy-home-config.sh /usr/local/bin/before-notebook.d/
 COPY start-tigervnc.sh /usr/local/bin/
 
 # This file is used by start-tigervnc.sh and sesman.ini so check it exists:
-RUN ls /opt/conda/lib/python3.12/site-packages/jupyter_remote_desktop_proxy/share/xstartup
+RUN ls /opt/conda/lib/python3.13/site-packages/jupyter_remote_desktop_proxy/share/xstartup
 
 # XRDP
 ARG JOVYAN_INITIAL_PASSWORD=jovyan123
