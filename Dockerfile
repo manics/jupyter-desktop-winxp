@@ -4,7 +4,7 @@
 # DL3009: Delete the apt-get lists after installing something
 # DL3015: Avoid additional packages by specifying `--no-install-recommends`
 
-FROM quay.io/jupyter/base-notebook:2025-07-28
+FROM quay.io/jupyter/base-notebook:2025-09-30
 
 # https://github.com/rozniak/xfce-winxp-tc/wiki/Manual-configuration-following-install/9ce456aacdf6d227fd42f71914a0a5776920e5ad
 
@@ -89,7 +89,7 @@ COPY copy-home-config.sh /usr/local/bin/before-notebook.d/
 COPY start-tigervnc.sh /usr/local/bin/
 
 # This file is used by start-tigervnc.sh and sesman.ini so check it exists:
-RUN ls /opt/conda/lib/python3.12/site-packages/jupyter_remote_desktop_proxy/share/xstartup
+RUN ls /opt/conda/lib/python3.13/site-packages/jupyter_remote_desktop_proxy/share/xstartup
 
 # XRDP
 ARG JOVYAN_INITIAL_PASSWORD=jovyan123
