@@ -6,7 +6,7 @@
 
 FROM quay.io/jupyter/base-notebook:2026-06-02
 
-# https://github.com/rozniak/xfce-winxp-tc/wiki/Manual-configuration-following-install/9ce456aacdf6d227fd42f71914a0a5776920e5ad
+# https://github.com/rozniak/xfce-winxp-tc/wiki/Manual-configuration-following-install/25d39e0ee0b48f9a237a73ac2cef29b7a4b3aabd
 
 # ARG RECOMMENDS=
 ARG RECOMMENDS=--no-install-recommends
@@ -40,7 +40,6 @@ RUN apt-get update -y -q && \
         make \
         patch \
         pkg-config \
-        python3 \
         sqlite3 \
         # For runtime setup
         rsync \
@@ -56,17 +55,20 @@ COPY --chown=$NB_UID:$NB_GID requirements.txt /tmp
 RUN . /opt/conda/bin/activate && \
     pip install --no-cache-dir -r /tmp/requirements.txt
 
-# https://github.com/rozniak/xfce-winxp-tc/tree/1a2f8d5b1e43bafaa29d95718274f6080ee0908b
-ARG XFCE_WINXP_TC_VERSION=1a2f8d5b1e43bafaa29d95718274f6080ee0908b
+# https://github.com/rozniak/xfce-winxp-tc/
+ARG XFCE_WINXP_TC_VERSION=89d4480e64b3ea5670bb30a6ca4a4f520ac75435
 RUN git clone https://github.com/rozniak/xfce-winxp-tc/ && \
     cd xfce-winxp-tc && \
     git checkout $XFCE_WINXP_TC_VERSION
 
 USER root
+# Python deps are handled in conda environment
 # Quote this to prevent word splitting, Set the SHELL option -o pipefail
 # hadolint ignore=SC2046,DL4006
 RUN apt-get install -y -q $RECOMMENDS \
-    $(/home/jovyan/xfce-winxp-tc/packaging/chkdeps.sh -l | cut -d':' -f2 | tr '\n' ' ')
+    $(/home/jovyan/xfce-winxp-tc/packaging/chkdeps.sh -l | \
+        grep -v python | \
+        cut -d':' -f2 | tr '\n' ' ')
 
 USER $NB_USER
 # COPY to a relative destination without WORKDIR set
