@@ -4,12 +4,20 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    cooldown:
+      default-days: 7
 
   # Bump dockerfile FROM
   - package-ecosystem: docker
     directory: /
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 7
 
   # Python package requirements
   - package-ecosystem: pip
@@ -23,3 +31,17 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    cooldown:
+      default-days: 7
+
+  # Pre-commit
+  - package-ecosystem: pre-commit
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      pre-commit:
+        patterns:
+          - "*"
+    cooldown:
+      default-days: 7
