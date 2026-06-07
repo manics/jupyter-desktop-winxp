@@ -13,8 +13,10 @@ CONTAINER_ID = getenv("CONTAINER_ID", "test")
 JUPYTER_HOST = getenv("JUPYTER_HOST", "http://localhost:8888")
 JUPYTER_TOKEN = getenv("JUPYTER_TOKEN", "secret")
 
+DIFF_THRESHOLD = 2
 
-def compare_screenshot(test_image, threshold=2):
+
+def diff_screenshot(test_image):
     # Compare images by calculating the mean absolute difference
     # Images must be the same size
     # threshold: Average difference per pixel, this depends on the image type
@@ -29,7 +31,7 @@ def compare_screenshot(test_image, threshold=2):
     diff_data = diff.get_flattened_data()
 
     m = sum(sum(px) for px in diff_data) / diff.size[0] / diff.size[1]
-    assert m < threshold
+    return m
 
 
 # To debug this set environment variable HEADLESS=0
@@ -74,13 +76,11 @@ def test_desktop(browser):
 
     # Use a non temporary folder so we can check it manually if necessary
     screenshot = Path("screenshots") / "desktop.png"
-    for attempt in range(4):  # 1 initial attempt + 3 retries
+    for _ in range(20):
+        page1.wait_for_timeout(5000)
         page1.locator("body").screenshot(path=screenshot)
-        try:
-            compare_screenshot(screenshot)
+        d = diff_screenshot(screenshot)
+        if d < DIFF_THRESHOLD:
             break
-        except AssertionError as exc:
-            print(exc)
-            if attempt == 3:
-                raise
-            page1.wait_for_timeout(30000)
+        print(f"Difference = {d}")
+    assert d < DIFF_THRESHOLD
