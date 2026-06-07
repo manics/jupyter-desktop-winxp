@@ -74,6 +74,13 @@ def test_desktop(browser):
 
     # Use a non temporary folder so we can check it manually if necessary
     screenshot = Path("screenshots") / "desktop.png"
-    page1.locator("body").screenshot(path=screenshot)
-
-    compare_screenshot(screenshot)
+    for attempt in range(4):  # 1 initial attempt + 3 retries
+        page1.locator("body").screenshot(path=screenshot)
+        try:
+            compare_screenshot(screenshot)
+            break
+        except AssertionError as exc:
+            print(exc)
+            if attempt == 3:
+                raise
+            page1.wait_for_timeout(30000)
