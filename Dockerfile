@@ -56,7 +56,7 @@ RUN . /opt/conda/bin/activate && \
     pip install --no-cache-dir -r /tmp/requirements.txt
 
 # https://github.com/rozniak/xfce-winxp-tc/
-ARG XFCE_WINXP_TC_VERSION=89d4480e64b3ea5670bb30a6ca4a4f520ac75435
+ARG XFCE_WINXP_TC_VERSION=3e4a675b64e7be4c2090e1b5e91d5799c1fd48b4
 RUN git clone https://github.com/rozniak/xfce-winxp-tc/ && \
     cd xfce-winxp-tc && \
     git checkout $XFCE_WINXP_TC_VERSION
