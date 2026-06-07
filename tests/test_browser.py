@@ -26,9 +26,9 @@ def compare_screenshot(test_image, threshold=2):
     # Absolute difference
     # Convert to RGB, alpha channel breaks ImageChops
     diff = ImageChops.difference(reference.convert("RGB"), test.convert("RGB"))
-    diff_data = diff.getdata()
+    diff_data = diff.get_flattened_data()
 
-    m = sum(sum(px) for px in diff_data) / diff_data.size[0] / diff_data.size[1]
+    m = sum(sum(px) for px in diff_data) / diff.size[0] / diff.size[1]
     assert m < threshold
 
 
@@ -50,9 +50,6 @@ def test_desktop(browser):
 
     # wintc-desktop takes a while to load
     page1.wait_for_timeout(20000)
-    # Use a non temporary folder so we can check it manually if necessary
-    screenshot = Path("screenshots") / "desktop.png"
-    page1.locator("body").screenshot(path=screenshot)
 
     # Open clipboard, enter random text, close clipboard
     clipboard_text = str(uuid4())
@@ -74,5 +71,9 @@ def test_desktop(browser):
         [engine, "exec", "-eDISPLAY=:1", CONTAINER_ID, "xclip", "-o"]
     )
     assert clipboard.decode() == clipboard_text
+
+    # Use a non temporary folder so we can check it manually if necessary
+    screenshot = Path("screenshots") / "desktop.png"
+    page1.locator("body").screenshot(path=screenshot)
 
     compare_screenshot(screenshot)
