@@ -4,7 +4,7 @@
 # DL3009: Delete the apt-get lists after installing something
 # DL3015: Avoid additional packages by specifying `--no-install-recommends`
 
-FROM quay.io/jupyter/base-notebook:2026-06-29
+FROM quay.io/jupyter/base-notebook:2026-07-20
 
 # https://github.com/rozniak/xfce-winxp-tc/wiki/Manual-configuration-following-install/25d39e0ee0b48f9a237a73ac2cef29b7a4b3aabd
 
